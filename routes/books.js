@@ -157,7 +157,7 @@ router.get('/:id', function(res, req, next){
 });*/
 
 /*GET book/id OPTION 2*/
-router.get('/:id', function(req, res, next) {
+router.get('/', function(req, res, next) {
   const libroId = parseInt(req.params.id);
   const libroEncontrado = books.find(libro => libro.id === libroId);
   if (!libroEncontrado) {
@@ -166,6 +166,26 @@ router.get('/:id', function(req, res, next) {
   res.status(201).send(libroEncontrado);
 });
 
+/*GET books/id/seller*/
+router.get('/sellers/:sellerId', function(req, res, next) {
+  const sellerId = parseInt(req.params.sellerId);
+  const seller = sellers.find(seller => seller.id === sellerId);
+  if (!seller) {
+    return res.status(404).send("Vendedor no encontrado");
+  }
+  res.status(200).send(seller);
+});
+
+/*GET books/id/seller/:idSeller/prize*/
+router.get('/sellers/:sellerId/price', function(req, res, next) {
+  const requestedPrice = parseFloat(req.params.price);
+  const bookWithPrice = books.find(book => book.price === requestedPrice);
+  if (!bookWithPrice) {
+    return res.status(404).send("Libro con ese precio no encontrado");
+  }
+  res.status(200).send(bookWithPrice);
+})
+
 /*POST book */
 router.post('/', function(req, res, next){
   var book = req.body;
@@ -173,9 +193,25 @@ router.post('/', function(req, res, next){
   res.sendStatus(201);
 });
 
+/*POST book/id/seller */
+router.post('/sellers', function(req, res, next){
+  const libroId = parseInt(req.params.id);
+  const newSeller = req.body;
 
+  const libroEncontrado = books.find(libro => libro.id === libroId);
+  if (!libroEncontrado) {
+    return res.status(404).send("Libro no encontrado");
+  }
+
+  if (!libroEncontrado.sellers) {
+    libroEncontrado.sellers = []; // Si el libro no tiene vendedores, se inicializa el array
+  }
+
+  libroEncontrado.sellers.push(newSeller);
+  res.status(201).send("Vendedor añadido al libro exitosamente");
+});
 /*PUT book*/
-router.put('/:id', function(req, res, next) {
+router.put('/', function(req, res, next) {
   const libroId = req.params.id;
   const libroActualizado = req.body;
 
@@ -202,8 +238,12 @@ router.put('/:id', function(req, res, next) {
   res.status(201).send("Libro actualizado exitosamente");
 });
 
+/*PUT books/id/seller/:idSeller/prize*/
+
+/*PUT books/id/seller/:idSeller/stock*/
+
 /*DELETE book*/
-router.delete('/:id', function(req, res, next) {
+router.delete('/', function(req, res, next) {
   const libroId = parseInt(req.params.id);
   const indiceLibro = books.findIndex(libro => libro.id === libroId);
   if (indiceLibro === -1) {
@@ -213,10 +253,6 @@ router.delete('/:id', function(req, res, next) {
   res.status(201).send("Libro eliminado exitosamente");
 });
 
-/*PUT prize */
-
-/*PUT seller*/
-
-/*PUT  reseñas*/
+/*DELETE book/id/seller */
 
 module.exports = router;
