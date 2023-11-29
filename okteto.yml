@@ -4,7 +4,7 @@ build:
 
 deploy:
   -helm upgrade --install books-service chart
-    --set image.repository=$${OKTETO_BUILD_BOOKS_SERVICE_IMAGE}
+    --set books.image=$${OKTETO_BUILD_BOOKS_SERVICE_IMAGE}
 
 dev:
   books-service:
