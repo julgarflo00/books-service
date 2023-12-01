@@ -145,41 +145,32 @@ router.get('/', function(req, res, next) {
   res.send(books);
 });
 
-/*GET book/id OPTION 1
-router.get('/:id', function(res, req, next){
-  var id = req.params.id;
-  var result = books.find(c =>{return c.id == id;});
-  if (result){
-    res.send(result);
-  } else {
-    res.sendStatus(404);
-  }
-});*/
-
 /*GET book/id OPTION 2*/
-router.get('/', function(req, res, next) {
-  const libroId = parseInt(req.params.id);
-  const libroEncontrado = books.find(libro => libro.id === libroId);
-  if (!libroEncontrado) {
+router.get('/:id', function(req, res, next) {
+  var bookId = req.params.id;
+  var findBook = books.find(book => {return book.id === bookId});
+  if (!findBook) {
     return res.status(404).send("Libro no encontrado");
   }
-  res.status(201).send(libroEncontrado);
+  res.status(201).send(findBook);
 });
 
 /*GET books/id/seller*/
-router.get('/sellers/:sellerId', function(req, res, next) {
-  const sellerId = parseInt(req.params.sellerId);
-  const seller = sellers.find(seller => seller.id === sellerId);
-  if (!seller) {
+router.get('/:id/:sellerId', function(req, res, next) {
+  var sellerId = req.body;
+  var findSeller = books.find(book => {return book.seller === sellerId});
+  if (!findSeller) {
     return res.status(404).send("Vendedor no encontrado");
   }
-  res.status(200).send(seller);
+  res.status(200).send(findSeller);
 });
 
-/*GET books/id/seller/:idSeller/prize*/
-router.get('/sellers/:sellerId/price', function(req, res, next) {
-  const requestedPrice = parseFloat(req.params.price);
-  const bookWithPrice = books.find(book => book.price === requestedPrice);
+/*GET books/:id/:sellerId/prize*/
+router.get('/:id/:sellerId/prize', function(req, res, next) {
+  var requestedPrice = req.body;
+  var bookId = req.params.id;
+  var findBook = books.find(book => {return book => book.id === bookId});
+  var bookWithPrice = findBook.options.find(s=> {return s.prize === requestedPrice});
   if (!bookWithPrice) {
     return res.status(404).send("Libro con ese precio no encontrado");
   }
@@ -193,48 +184,41 @@ router.post('/', function(req, res, next){
   res.sendStatus(201);
 });
 
-/*POST book/id/seller */
-router.post('/sellers', function(req, res, next){
-  const libroId = parseInt(req.params.id);
-  const newSeller = req.body;
+/*POST book/:id/:sellerId */
+router.post('/:id/:sellerId', function(req, res, next){
+  var bookId = req.params.id;
+  var newSeller = req.body;
+  var findBook = books.find(book => {return book.id === bookId});
+  var findSeller = findBook.options.find(s => {return s.seller === newSeller});
 
-  const libroEncontrado = books.find(libro => libro.id === libroId);
-  if (!libroEncontrado) {
+  if (!findBook) {
     return res.status(404).send("Libro no encontrado");
   }
-
-  if (!libroEncontrado.sellers) {
-    libroEncontrado.sellers = []; // Si el libro no tiene vendedores, se inicializa el array
+  else if (!findSeller) {
+    findSeller = []; // Si el libro no tiene vendedores, se inicializa el array
   }
-
-  libroEncontrado.sellers.push(newSeller);
+  findSeller.push(newSeller);
   res.status(201).send("Vendedor añadido al libro exitosamente");
 });
+
 /*PUT book*/
-router.put('/', function(req, res, next) {
-  const libroId = req.params.id;
-  const libroActualizado = req.body;
+router.put('/:id', function(req, res, next) {
+  var bookId = req.params.id;
+  var newBook = req.body;
 
-  // Buscar el índice del libro en el array 'books' usando su ID
-  const indiceLibro = books.findIndex(libro => libro.id === libroId);
-
-  // Verificar si el libro con el ID proporcionado existe
-  if (indiceLibro === -1) {
-    // Si no se encuentra el libro, devolver un mensaje de error
+  var findBook = books.findIndex(libro => {return libro.id === bookId});
+  if (!findBook) {
     return res.status(404).send("Libro no encontrado");
   }
-
-  // Actualizar los detalles del libro en el array 'books'
-  books[indiceLibro] = {
-    id: libroId,
-    title: libroActualizado.title,
-    author: libroActualizado.author,
-    year: libroActualizado.year,
-    genre: libroActualizado.genre,
-    options: {seller: libroActualizado.seller, stock: libroActualizado.year, prize: libroActualizado.prize    }
+  
+  books[findBook] = {
+    id: bookId,
+    title: newBook.title,
+    author: newBook.author,
+    year: newBook.year,
+    genre: newBook.genre,
+    options: {seller: newBook.seller, stock: newBook.year, prize: newBook.prize    }
   };
-
-  // Devolver la respuesta con el nuevo estado de los libros
   res.status(201).send("Libro actualizado exitosamente");
 });
 
@@ -244,12 +228,12 @@ router.put('/', function(req, res, next) {
 
 /*DELETE book*/
 router.delete('/', function(req, res, next) {
-  const libroId = parseInt(req.params.id);
-  const indiceLibro = books.findIndex(libro => libro.id === libroId);
-  if (indiceLibro === -1) {
+  var bookId = req.body;
+  var findBook = books.find(book => {return book.id === bookId});
+  if (!findBook) {
     return res.status(404).send("Libro no encontrado");
   }
-  books.splice(indiceLibro, 1);
+  books.splice(findBook, 1);
   res.status(201).send("Libro eliminado exitosamente");
 });
 
