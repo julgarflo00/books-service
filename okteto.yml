@@ -3,11 +3,11 @@ build:
     context: .
 
 deploy:
-  -helm upgrade --install books-service chart
-    --set image.repository=$${OKTETO_BUILD_BOOKS_SERVICE_IMAGE}
+  - helm upgrade --install books-service chart
+    --set books.image=$${OKTETO_BUILD_BOOKS_SERVICE_IMAGE}
 
 dev:
   books-service:
     command: npm start
     sync:
-      - ./app
+      - .:/app
