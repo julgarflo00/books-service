@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: books
   labels:
-    {{- include "books.labels" . | nindent 4}}
+    {{- include "books.labels" . | nindent 4 "}}
     app.kubernetes.io/component: books
 spec:
   replicas: {{ .Values.books.replicaCount }}

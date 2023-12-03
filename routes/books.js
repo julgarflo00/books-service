@@ -78,7 +78,7 @@ var books =[
       { "seller": 1, "stock": 80, "prize": 13.0 },
       { "seller": 2, "stock": 90, "prize": 18.0 }
     ]
-  },
+  }/*,
   {
     "id": 1,
     "title": "Orgullo y prejuicio",
@@ -188,24 +188,25 @@ var books =[
       { "seller": 1, "stock": 65, "prize": 15.0 },
       { "seller": 2, "stock": 75, "prize": 20.0 }
     ]
-  }
+  }*/
 ]
 /* GET books listing. */
 router.get('/', function(req, res, next) {
-  res.send(books);
+  res.status(201).send(books);
 });
 
 /*GET book/id OPTION 2*/
 router.get('/:id', function(req, res, next) {
-  var bookId = req.params.id;
-  var findBook = books.find(book => {return book.id === bookId});
-  if (!findBook) {
-    return res.status(404).send("Libro no encontrado");
+  const bookId = parseInt(req.params.id);
+  const findBook = books.find(book => {return book.id === bookId});
+  if (findBook) {
+    res.status(201).send(findBook);
+  }else{
+    res.status(404).send("Libro no encontrado");
   }
-  res.status(201).send(findBook);
 });
 
-/*GET books/id/seller*/
+/*GET books/id/seller
 router.get('/:id/:sellerId', function(req, res, next) {
   var sellerId = req.body;
   var findSeller = books.find(book => {return book.seller === sellerId});
@@ -213,31 +214,67 @@ router.get('/:id/:sellerId', function(req, res, next) {
     return res.status(404).send("Vendedor no encontrado");
   }
   res.status(200).send(findSeller);
+});*/
+
+router.get('/:id/:sellerId', function(req, res, next) {
+  const bookId = parseInt(req.params.id); 
+  const sellerId = parseInt(req.params.sellerId);
+  const findBook = books.find(book => book.id === bookId);
+  if (!findBook) {
+    return res.status(404).send("Libro no encontrado");
+  }
+  const findSeller = findBook.options.find(option => option.seller === sellerId);
+  if (!findSeller) {
+    return res.status(404).send("Vendedor no encontrado para este libro");
+  }
+  res.status(200).send(findSeller);
 });
 
-/*GET books/:id/:sellerId/prize*/
+/*GET books/:id/:sellerId/prize
 router.get('/:id/:sellerId/prize', function(req, res, next) {
-  var requestedPrice = req.body;
-  var bookId = req.params.id;
+  var requestedPrice = parseInt(req.body);
+  var bookId = parseInt(req.params.id);
   var findBook = books.find(book => {return book => book.id === bookId});
   var bookWithPrice = findBook.options.find(s=> {return s.prize === requestedPrice});
   if (!bookWithPrice) {
     return res.status(404).send("Libro con ese precio no encontrado");
   }
   res.status(200).send(bookWithPrice);
-})
+})*/
+
+/*GET books/id/idSeller/options?options=stock */
+router.get('/:id/:idSeller/options', function(req, res, next) {
+  const bookId = parseInt(req.params.id);
+  const sellerId = parseInt(req.params.idSeller);
+  const findBook = books.find(book => book.id === bookId);
+  if (!findBook) {
+    return res.status(404).send("Libro no encontrado");
+  }
+  const findOption = findBook.options.find(option => option.seller === sellerId);
+  if (!findOption) {
+    return res.status(404).send("Opción de vendedor no encontrada para este libro");
+  }
+  const options = req.query.options;
+  if (options === 'stock') {
+    return res.status(200).send({ stock: findOption.stock });
+  } else if (options === 'price') {
+    return res.status(200).send({ price: findOption.prize });
+  } else {
+    return res.status(400).send("Parámetro 'options' no válido");
+  }
+});
 
 /*POST book */
 router.post('/', function(req, res, next){
-  var book = req.body;
+  var book = parseInt(req.body);
   books.push(book);
   res.sendStatus(201);
 });
 
 /*POST book/:id/:sellerId */
 router.post('/:id/:sellerId', function(req, res, next){
-  var bookId = req.params.id;
-  var newSeller = req.body;
+  var bookId = parseInt(req.params.id);
+  var newSeller = parseInt(req.body);
   var findBook = books.find(book => {return book.id === bookId});
   var findSeller = findBook.options.find(s => {return s.seller === newSeller});
 
@@ -253,8 +290,8 @@ router.post('/:id/:sellerId', function(req, res, next){
 
 /*PUT book*/
 router.put('/:id', function(req, res, next) {
-  var bookId = req.params.id;
-  var newBook = req.body;
+  var bookId = parseInt(req.params.id);
+  var newBook = parseInt(req.body);
 
   var findBook = books.findIndex(libro => {return libro.id === bookId});
   if (!findBook) {
@@ -278,7 +315,7 @@ router.put('/:id', function(req, res, next) {
 
 /*DELETE book*/
 router.delete('/', function(req, res, next) {
-  var bookId = req.body;
+  var bookId = parseInt(req.body);
   var findBook = books.find(book => {return book.id === bookId});
   if (!findBook) {
     return res.status(404).send("Libro no encontrado");
