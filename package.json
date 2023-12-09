@@ -1,6 +1,6 @@
 {
   "name": "books-service",
-  "version": "0.0.0", 
+  "version": "0.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/julgarflo00/books-service.git"
@@ -14,6 +14,9 @@
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "module": "^1.2.5",
+    "mongodb": "4.1",
+    "mongoose": "^8.0.2",
     "morgan": "~1.9.1"
   }
 }

@@ -21,6 +21,12 @@ spec:
       containers:
         - name: books
           image: {{ .Values.books.image }}
+          env:
+            - name: DB_URL
+              valueFrom:
+                secrectKeyRef:
+                  name: mongodb
+                  key: books_db_url
           ports:
             - name: http
               containerPort: 3000

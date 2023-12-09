@@ -1,3 +1,5 @@
 books:
   replicaCount: 1
+
+booksMongoUrl: mongodb://mongo/test
   

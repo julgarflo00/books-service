@@ -5,6 +5,7 @@ build:
 deploy:
   - helm upgrade --install books-service chart
     --set books.image=$${OKTETO_BUILD_BOOKS_SERVICE_IMAGE}
+    --set booksMongoUrl=$BOOKS_DB_URL
 
 dev:
   books-service:

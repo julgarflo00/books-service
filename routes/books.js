@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var Book = require('../models/book');
+var debug = require('debug')('bokks-2:server');
 
-var books =[
+/*var books =[
   {
     "id": 1,
     "title": "Harry Potter y la piedra filosofal",
@@ -78,7 +80,7 @@ var books =[
       { "seller": 1, "stock": 80, "prize": 13.0 },
       { "seller": 2, "stock": 90, "prize": 18.0 }
     ]
-  }/*,
+  },
   {
     "id": 1,
     "title": "Orgullo y prejuicio",
@@ -188,12 +190,21 @@ var books =[
       { "seller": 1, "stock": 65, "prize": 15.0 },
       { "seller": 2, "stock": 75, "prize": 20.0 }
     ]
-  }*/
+  }
 ]
-/* GET books listing. */
-router.get('/', function(req, res, next) {
-  res.status(201).send(books);
-});
+*/
+/*JhLNxzLZjHALSZ28
+mongodb+srv://julgarflo:JhLNxzLZjHALSZ28@books-service.scqhdi0.mongodb.net/?retryWrites=true&w=majority */
+/* GET books listing: */
+router.get('/', async function(req, res, next) {
+  try{
+    const result = await Book.find();
+    res.send(result.map((c)=>c.cleanup()));
+  } catch (e){
+    debug("DB problem", e);
+    res.sendStatus(500);
+  }
+  });
 
 /*GET book/id OPTION 2*/
 router.get('/:id', function(req, res, next) {
@@ -265,10 +276,25 @@ router.get('/:id/:idSeller/options', function(req, res, next) {
 });
 
 /*POST book */
-router.post('/', function(req, res, next){
-  var book = parseInt(req.body);
-  books.push(book);
-  res.sendStatus(201);
+router.post('/', async function(req, res, next){
+  const {id, title} = req.body;
+
+  const book = Book ({
+    id,
+    title});
+
+  try {
+    await book.save();
+    return res.status(201).send("Libro actualizado");
+  }catch (e) {
+    if(e.errors){
+      debug("Validation problem when saving");
+    res.status(400).send({error: e.message});
+    }else{
+      debug("DB problem", e);
+      res.sendStatus(500);
+    }
+  }
 });
 
 /*POST book/:id/:sellerId */
@@ -278,7 +304,7 @@ router.post('/:id/:sellerId', function(req, res, next){
   var findBook = books.find(book => {return book.id === bookId});
   var findSeller = findBook.options.find(s => {return s.seller === newSeller});
 
-  if (!findBook) {
+  if (!findBook) { 
     return res.status(404).send("Libro no encontrado");
   }
   else if (!findSeller) {
